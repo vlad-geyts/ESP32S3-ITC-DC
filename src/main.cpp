@@ -11,6 +11,16 @@
 //    4. Core 0 changes the LED blink rate based on the data received from Core 1.
 
 #include <Arduino.h>
+#include <ESP.h>        // Include the ESP class header
+
+// --- Modern C++: Namespaces & Constexpr ---
+// We use a namespace to group related constants. This prevents "LED_PIN" from 
+// accidentally conflicting with other libraries.
+namespace Config {
+    // 'constexpr' tells the compiler this value is known at compile-time.
+    // It is more efficient than 'const' and safer than '#define'.
+    constexpr int LedPin    = 2;
+}
 
 // Handle for our Queue
 // This will hold integers representing the delay in milliseconds
@@ -32,9 +42,32 @@ void logicTask(void *pvParameters);
 void setup() {
     delay(1000);
     Serial.begin(115200);
-    delay(500);
+    delay(5000);
 
-    Serial.println("\n--- Phase 2: Inter-Task Communication ---");
+    Serial.println("\n--- Connected via CH343 UART (COM?) ---");
+    Serial.println(  "--- ESP32-S3 Dual Core Booting --------");
+    Serial.println("\n--- ESP Hardware Info------------------");
+    
+    // Display ESP Information
+    Serial.printf("Chip ID: %u\n", ESP.getChipModel()); // Get the 24-bit chip ID
+    Serial.printf("CPU Frequency: %u MHz\n", ESP.getCpuFreqMHz()); // Get CPU frequency
+    Serial.printf("SDK Version: %s\n", ESP.getSdkVersion()); // Get SDK version
+
+    // Get and print flash memory information
+    Serial.printf("Flash Chip Size: %u bytes\n", ESP.getFlashChipSize()); // Get total flash size
+   
+    // Get and print SRAM memory information
+    Serial.printf("Internal free Heap at setup: %d bytes\n", ESP.getFreeHeap());
+    if(psramFound()){
+        Serial.printf("Total PSRAM Size: %d bytes", ESP.getPsramSize());
+    } else {
+         Serial.print("No PSRAM found");
+    }
+    Serial.println("\n---------------------------------------");
+    Serial.println("\n");
+
+    // Configure Hardware using our Namespace
+    pinMode(Config::LedPin,    OUTPUT);
 
     // 1. Create a Queue: (Queue Length, Size of each item)
     // We want to hold 5 integers max.
@@ -78,9 +111,6 @@ void loop() {
 
 // --- Task Implementations ---
 void heartbeatTask(void *pvParameters) {
-    const int LED_PIN = 2;
-    pinMode(LED_PIN, OUTPUT);
-    
     int currentDelay = 1000; // Default 1 second
 
     for(;;) {
@@ -96,7 +126,8 @@ void heartbeatTask(void *pvParameters) {
             Serial.printf("[Core 0] Received NEW blink rate: %d ms\n", currentDelay);
         }
 
-        digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+        // Toggle the LED state
+        digitalWrite(Config::LedPin, !digitalRead(Config::LedPin));
         vTaskDelay(pdMS_TO_TICKS(currentDelay));
     }
 }

@@ -23,6 +23,28 @@ Why this is a "Senior EE" approach:
        It just waits for an order from the Queue.
 
     3. Power Efficiency: While we are using 0 wait time in xQueueReceive (polling),
-       in Phase 3 we can make the task block (go to sleep) until a message arrives, saving CPU cycles.
+       in Phase 3 we can make the task block (go to sleep) until a message arrives,
+       saving CPU cycles.
 
-Vlad, once you upload this, you should see the LED blink slowly 5 times, then very rapidly 5 times, cycling forever. Let me know when the Serial monitor confirms the Queue communication is active!
+Vlad, once you upload this, you should see the LED blink slowly 5 times, 
+then very rapidly 5 times, cycling forever. Let me know when the Serial monitor 
+confirms the Queue communication is active!
+
+Me:
+Is that possible that   vTaskDelete(NULL);  in void loop(0) interfere with 
+Inter-task-Communication. Like the task will be cleared before executing?
+
+Gemini said:
+That is an excellent, high-level question, Vlad. For an engineer used to linear execution, 
+vTaskDelete(NULL) inside loop() looks aggressive. Here is the breakdown of why it is safe 
+and how it interacts with your system:
+
+1. Does it interfere with Inter-Task Communication?
+
+No. Here’s why:
+In the ESP32 Arduino framework, setup() and loop() are actually running inside a FreeRTOS
+task created automatically by the system (usually called the "Arduino Task").
+When you call vTaskDelete(NULL) inside loop(), you are only deleting the "Arduino Task."
+    The Queue: The Queue blinkDelayQueue is a global kernel object. It lives in the heap, 
+    not in the loop() task's stack.
+    The Sub-Tasks: TaskHeartbeat and TaskLogic are independent entities with their own stacks and TCBs (Task Control Blocks).
