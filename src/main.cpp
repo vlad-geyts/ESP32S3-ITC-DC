@@ -67,12 +67,11 @@ void setup() {
     Serial.println("\n");
 
     // Configure Hardware using our Namespace
-    pinMode(Config::LedPin,    OUTPUT);
+    pinMode(Config::LedPin, OUTPUT);
 
     // 1. Create a Queue: (Queue Length, Size of each item)
     // We want to hold 5 integers max.
     blinkDelayQueue = xQueueCreate(5, sizeof(int));
-
     if (blinkDelayQueue == NULL) {
         Serial.println("Error creating the queue");
         while(1);
@@ -150,6 +149,6 @@ void logicTask(void *pvParameters) {
             Serial.printf("[Core 1] SENT new delay: %d ms to Queue\n", newDelay);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(500)); 
+        vTaskDelay(pdMS_TO_TICKS(5000)); 
     }
 }
