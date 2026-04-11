@@ -33,7 +33,7 @@ TaskHandle_t TaskHeartbeat;     // It is defined as a void* (a pointer to void)
                                 // which stores all the information about a task (priority, stack, state, etc.)
 TaskHandle_t TaskLogic;
 
-void heartbeatTask(void *pvParameters); // standard function signature for tats in RTOS
+void heartbeatTask(void *pvParameters); // standard function signature for task in RTOS
                                         // (void *pvParameters) input argument
                                         // "void *"" pointer to void type, whic means the task can receive a 
                                         // pointer to any data type (integer, structure, etc.)
