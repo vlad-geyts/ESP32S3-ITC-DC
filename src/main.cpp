@@ -12,6 +12,7 @@
 
 #include <Arduino.h>
 #include <ESP.h>        // Include the ESP class header
+#include "unused_gpio.h"
 
 // --- Modern C++: Namespaces & Constexpr ---
 // We use a namespace to group related constants. This prevents "LED_PIN" from 
